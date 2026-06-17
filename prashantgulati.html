@@ -1,0 +1,646 @@
+
+<title>Prashant Gulati - Video Resume</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234F46E5'/%3E%3Ctext x='50%25' y='50%25' dy='.07em' font-family='Space Grotesk, Arial, sans-serif' font-size='30' font-weight='700' fill='%23ffffff' text-anchor='middle' dominant-baseline='central'%3EPG%3C/text%3E%3C/svg%3E">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .rw {
+    --bg: #FFFFFF;
+    --bg-soft: #F6F6F5;
+    --ink: #0F0F11;
+    --muted: #71717A;
+    --faint: #A1A1AA;
+    --line: rgba(15,15,17,0.09);
+    --accent: #4F46E5;
+    --accent-soft: #EEEEFF;
+    background: var(--bg);
+    min-height: 580px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink);
+    position: relative;
+  }
+
+  /* ── PERSISTENT VIDEO BUBBLE (bottom-right, all pages) ── */
+  .rw-photo {
+    position: absolute;
+    bottom: 0.75rem; right: 2.5rem;
+    width: 210px; height: 210px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 30px rgba(15,15,17,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--faint); text-align: center; padding: 0;
+    z-index: 5;
+    cursor: pointer;
+  }
+  #bubble-video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .rw-photo-play {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(15,15,17,0.28);
+    transition: opacity 0.2s;
+  }
+  .rw-photo-play svg { margin-left: 4px; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4)); }
+  .rw-photo.playing .rw-photo-play { opacity: 0; pointer-events: none; }
+
+  /* ── TOP BAR ── */
+  .arc-bar {
+    padding: 1.1rem 2.5rem 1rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .arc-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.1rem;
+  }
+  .bar-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  .bar-count {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .bar-count .cur { color: var(--accent); font-weight: 600; }
+
+  .timeline {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    gap: 0;
+  }
+  .tl-track {
+    position: absolute;
+    top: 4px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--line);
+    border-radius: 2px;
+    z-index: 0;
+  }
+  .tl-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .ch-stop {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .stop-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #d4d4d8;
+    border: 2px solid var(--bg);
+    transition: all 0.25s;
+    margin-top: 1px;
+  }
+  .ch-stop.visited .stop-dot { background: var(--accent); }
+  .ch-stop.active .stop-dot {
+    background: var(--accent);
+    width: 13px; height: 13px;
+    margin-top: -1px;
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .stop-lbl {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    color: var(--faint);
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .ch-stop:hover .stop-lbl { color: var(--muted); }
+  .ch-stop.active .stop-lbl { color: var(--accent); }
+  .ch-stop.visited .stop-lbl { color: var(--muted); }
+
+  /* ── INTRO SCREEN ── */
+  .intro-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    padding: 3.5rem 2.5rem;
+    min-height: 430px;
+  }
+  .intro-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+  .intro-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 60px;
+    line-height: 1.0;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .intro-tagline {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    max-width: 30ch;
+  }
+  .intro-tagline .accent { color: var(--accent); font-weight: 500; }
+
+  /* ── CHAPTER SCREEN ── */
+  .ch-body {
+    padding: 2.5rem 2.5rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .ch-eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .eyebrow-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .ch-flag {
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .ch-logo {
+    width: 40px; height: 40px;
+    border-radius: 9px;
+    background: #fff;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: 5px;
+  }
+  .ch-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .logo-wordmark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .ch-sub {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.12em; color: var(--muted);
+    text-transform: uppercase;
+  }
+  .ch-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 44px;
+    line-height: 1.08; color: var(--ink);
+    margin-bottom: 1.75rem;
+    letter-spacing: -0.015em;
+  }
+  .ch-headline .accent { color: var(--accent); }
+  .ch-headline.is-title {
+    font-size: 36px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    max-width: 24ch;
+  }
+  .ch-subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.45;
+    margin-top: -0.75rem;
+    margin-bottom: 1.75rem;
+    white-space: nowrap;
+  }
+  .takeaway-card {
+    background: var(--bg-soft); border-radius: 14px;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--line);
+  }
+  .tw-label {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 0.85rem;
+  }
+  .tw-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .tw-text {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5; color: var(--ink);
+  }
+  .content-cards {
+    padding: 0 310px 0 2.5rem;
+    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .img-card {
+    background: var(--bg); border-radius: 14px;
+    overflow: hidden; border: 1px solid var(--line);
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .card-link-icon {
+    position: absolute;
+    top: 8px; right: 8px;
+    z-index: 2;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 7px;
+    background: rgba(255,255,255,0.9);
+    color: var(--accent);
+    box-shadow: 0 1px 4px rgba(15,15,17,0.12);
+    backdrop-filter: blur(2px);
+  }
+  a.img-card:hover .card-link-icon {
+    background: var(--accent);
+    color: #fff;
+  }
+  .img-card:hover { border-color: rgba(79,70,229,0.4); }
+  a.img-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  a.img-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(15,15,17,0.1);
+  }
+  .img-card-img {
+    width: 100%; height: 110px;
+    background: var(--bg-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--faint); letter-spacing: 0.04em;
+    overflow: hidden;
+  }
+  .img-card-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .img-card-body { padding: 1rem 1.1rem 1.1rem; }
+  .card-tags {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    margin-bottom: 8px;
+  }
+  .card-tag {
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-soft);
+    display: inline-block; padding: 3px 8px;
+    border-radius: 5px;
+  }
+  .card-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; font-family: 'Space Grotesk', sans-serif; }
+  .card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .num-card {
+    background: var(--bg); border-radius: 14px;
+    padding: 1.3rem; border: 1px solid var(--line);
+  }
+  .num-card.hi { border-color: var(--accent); background: var(--accent-soft); }
+  .num { font-size: 12px; font-weight: 600; color: var(--faint); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+  .num-card.hi .num { color: var(--accent); }
+  .num-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; font-family: 'Space Grotesk', sans-serif; }
+  .num-detail { font-size: 12px; color: var(--muted); line-height: 1.45; }
+  .num-card.hi .num-detail { color: var(--ink); }
+
+  .ch-bottom-pad { height: 2.5rem; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 720px) {
+    .arc-bar { padding: 1rem 1.25rem 0.9rem; }
+    .arc-top-row { margin-bottom: 0.9rem; }
+
+    /* horizontally scrollable timeline; line hidden, dots carry progress */
+    .timeline {
+      overflow-x: auto;
+      gap: 4px;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .timeline::-webkit-scrollbar { display: none; }
+    .tl-track, .tl-fill { display: none; }
+    .ch-stop { flex: 0 0 auto; min-width: 58px; }
+
+    .rw-photo { width: 96px; height: 96px; bottom: 1rem; right: 1rem; font-size: 10px; }
+
+    .intro-screen {
+      text-align: left;
+      gap: 0;
+      padding: 2.5rem 1.5rem;
+      min-height: 0;
+    }
+    .intro-name { font-size: 38px; }
+    .intro-tagline { max-width: none; }
+
+    .ch-body {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 2rem 1.5rem 1.25rem;
+    }
+    .ch-headline { font-size: 34px; }
+
+    .content-cards {
+      grid-template-columns: 1fr;
+      padding: 0 1.5rem;
+    }
+    .img-card-img { height: 140px; }
+    /* clear the floating bubble at the foot of the page */
+    .ch-bottom-pad { height: 6rem; }
+  }
+
+  @media (max-width: 420px) {
+    .intro-name { font-size: 30px; }
+    .ch-headline { font-size: 28px; }
+  }
+</style>
+
+<div class="rw">
+  <div class="arc-bar">
+    <div class="arc-top-row">
+      <span class="bar-label" id="bar-label">Intro</span>
+      <span class="bar-count" id="bar-count">Prashant Gulati</span>
+    </div>
+    <div class="timeline" id="timeline">
+      <div class="tl-track"><div class="tl-fill" id="tl-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div id="screen"></div>
+
+  <div class="rw-photo" id="rw-photo">
+    <video id="bubble-video" playsinline>
+      <source src="assets/video_final.mp4" type="video/mp4">
+    </video>
+    <div class="rw-photo-play" id="rw-photo-play">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><polygon points="7,4 20,12 7,20"/></svg>
+    </div>
+  </div>
+</div>
+
+<script>
+const stops = ["Intro","Georgia Tech","Berkeley","Startups","RBC Ventures","GCP Eventarc","GCP Billing","Youtube Ads","Polymorph AI","The Fit"];
+const flags = ["","🇺🇸","🇺🇸","🇺🇸 🇮🇳","🇨🇦","🇨🇦","🇨🇦","🇨🇦 🇺🇸","🇺🇸",""];
+
+const chapters = [
+  { logo:"assets/georgia-tech.svg", eyebrow:"Georgia Tech · Computer Science",
+    title:"Graduated <span class=\"accent\">Summa Cum Laude</span>",
+    subtitle:"Fundamentals in Databases, Compilers, Distributed Systems",
+    takeaway:"I built the CS fundamentals and leadership skills that allow me to traverse the lines between product & engineering.", cardType:"image",
+    cards:[
+      {title:"CS Teaching Assistant", desc:"Aced the class my first semester, started teaching it the next semester — Scheme, C, and Compilers", tags:["Scheme","C","Compilers"], image:"assets/c-programming.png"},
+      {title:"CS co-op program", desc:"2 years of industry experience creating systems to manage company inventory, time & integrating with financial services cos", tags:["JSP","Struts"], image:"assets/coop.png"},
+      {title:"Resident Assistant", desc:"Leadership role at age 18, managing 40 students as an RA. Paid my way through university", tags:["Resident Assistant"], image:"assets/ra.png"}
+    ]},
+  { logo:"assets/berkeley.png", eyebrow:"Berkeley · Business school",
+    title:"Built <span class=\"accent\">lean startups</span> and <span class=\"accent\">made mistakes</span>",
+    subtitle:"Graduated with a Merit Scholarship",
+    takeaway:"I honed the technical instincts to make 0→1 product decisions, even when the tech was early", cardType:"image",
+    cards:[
+      {title:"Online therapy over video-conference", desc:"Mindverse, 2010: Y Combinator finalist - Paul Graham questioned tech feasibility - did not become feasible until Google open-sourced WebRTC protocol. $0 ARR", tags:["YC Finalist","WebRTC"], image:"assets/yc.png"},
+      {title:"UC Berkeley Business Plan", desc:"Finalist for Mindverse", tags:["BBP Finalist"], image:"assets/berkeley2.webp"}
+    ]},
+  { logo:"assets/startups.jpg", eyebrow:"Startups · Founder",
+    title:"<span class=\"accent\">Shipped AI features</span> to drive revenue - before it was cool",
+    takeaway:"I built companies in healthcare and e-commerce, achieving greater commercial success with each one. Applied predictive ML in core workflows.", cardType:"image",
+    cards:[
+      {title:"Expat surgery concierge", desc:"G&G Healthcare, 2012: $300K ARR, 50 customers, 3 employees", tags:["Healthcare","$300K ARR"], image:"assets/gg.jpeg", fit:"contain", link:"https://gandghealthcare.xyz/"},
+      {title:"Custom goods e-commerce platform", desc:"Freshmonk, 2014: ~$2M ARR, 60K customers, 25 employees. Predictive ML (k-means clustering) accelerated core workflows. Sold the company.", tags:["E-commerce","Predictive ML","$2M ARR"], image:"assets/freshmonk.jpeg", fit:"contain", link:"https://prashantgulati.substack.com/p/k-means-clustering-ml-in-production"}
+    ]},
+  { logo:"assets/rbc.png", eyebrow:"RBC Ventures · Sr Director of Product",
+    title:"Honed <span class=\"accent\">build vs buy</span> muscle in corporate VC for a large bank",
+    takeaway:"I developed the taste and judgement to relentlessly simplify when bringing tech to non-technical customers", cardType:"image",
+    cards:[]},
+  { logo:"assets/google-cloud.jpg", eyebrow:"Google Cloud Eventarc · Founding PM",
+    title:"<span class=\"accent\">Succeeded shipping 0→1</span>, turning past failures into success",
+    takeaway:"I brought measured architectural choices to simplify CX for technically complex products, driving adoption for 1000s of enterprise customers", cardType:"image",
+    cards:[
+      {title:"Shipped from pre-alpha to GA", desc:"Shipped to 2000+ enterprise customers, delivering 1B+ events/mo at launch. Built with 25 engineers over 18 months", tags:["Enterprise Software","GCP","Eventarc"], image:"assets/eventarc.jpg", link:"https://cloud.google.com/blog/products/serverless/build-event-driven-applications-in-cloud-run"},
+      {title:"Cloud Next 2020", desc:"Presented to developers at GCP's flagship Next conference", tags:["Cloud Next"], image:"assets/eventarc2.png", link:"https://www.youtube.com/watch?v=0N82S5fXpQE"}
+    ]},
+  { logo:"assets/google-cloud.jpg", eyebrow:"Google Cloud Billing · Group PM Manager",
+    title:"Scaled <span class=\"accent\">systems</span> and <span class=\"accent\">people</span> from $10B to $20B ARR",
+    takeaway:"I managed broad scope and large teams, and honed my instincts on succeeding in chaos", cardType:"image",
+    cards:[
+      {title:"Pricing & Monetization", desc:"Drove the efforts of 130+ engineers serving 100K+ customers", tags:["GCP","Billing"], image:"assets/pricing.png"},
+      {title:"Data Pipelines", desc:"", tags:["GCP","Billing"], image:"assets/datapipelines.png"}
+    ]},
+  { logo:"assets/youtube.png", eyebrow:"Youtube Ads · Group PM IC",
+    title:"Shipped AI/ML product at <span class=\"accent\">Google scale</span>",
+    takeaway:"I drove $500M in ARR impact in 30 months through AI/ML optimizations in the YTAds stack", cardType:"image",
+    cards:[
+      {title:"Personalizing Ad Load for 1B+ users", desc:"Drove personalization of the ad load experience of 1B+ Youtube Shorts viewers, driving $500M ARR gains", tags:["Regression","Classification","Heuristics","Ad Auctions"], image:"assets/ad.png"},
+      {title:"Constrained Optimization", desc:"Balanced ad revenue goals with Youtube's engagement loss goals", tags:["Revenue vs Engagement"], image:"assets/lambda.png"}
+    ]},
+  { logo:"POLYMORPH", eyebrow:"Polymorph AI · AI-native Builder",
+    title:"<span class=\"accent\">Agentically engineering</span> LLM workflows and Image models", takeaway:"I'm putting SOTA models to work for specific business use cases, and agentically engineering them myself", cardType:"image",
+    cards:[
+      {title:"AI Visibility for e-commerce", desc:"AI Radar: 130K lines of code, with Claude Code. 15 beta customers", tags:["LLM workflows","AEO","AI SEO"], image:"assets/ai_radar_1.png", link:"https://www.airadar.run"},
+      {title:"Virtual Try-on for fashion brands", desc:"", tags:["Virtual try-on","Shopify fashion brands"], image:"assets/tryon.png"}
+    ]},
+  { logo:"", eyebrow:"WHY I'M A FIT",
+    title:"Product judgement.<br>Scaling acumen.<br><span class=\"accent\">Brings humans along for the ride</span>",
+    takeaway:"Proven results over 15+ years and the energy and agency to meet the current moment", cardType:"image",
+    cards:[
+      {title:"AI/ML Diaries Substack", desc:"", tags:[], image:"assets/substack.png", fit:"contain", link:"https://prashantgulati.substack.com/"},
+      {title:"Github", desc:"", tags:[], image:"assets/github.svg", fit:"contain", link:"https://github.com/prashant-gulati"}
+    ]}
+];
+
+let cur = -1;
+
+function buildTimeline() {
+  const tl = document.getElementById('timeline');
+  // keep the track element, append stops after it
+  stops.forEach((label, i) => {
+    const idx = i - 1; // -1 = intro, 0..9 = chapters
+    const el = document.createElement('div');
+    el.className = 'ch-stop';
+    el.setAttribute('data-i', idx);
+    el.onclick = () => goTo(idx);
+    el.innerHTML = `<div class="stop-dot"></div><span class="stop-lbl">${label}</span>`;
+    tl.appendChild(el);
+  });
+}
+
+function updateBar(idx) {
+  const label = document.getElementById('bar-label');
+  const count = document.getElementById('bar-count');
+  const fill = document.getElementById('tl-fill');
+  const allStops = document.querySelectorAll('.ch-stop');
+
+  if (idx === -1) {
+    label.textContent = 'Intro';
+    count.textContent = 'Prashant Gulati';
+    fill.style.width = '0px';
+  } else {
+    label.textContent = stops[idx + 1];
+    count.innerHTML = `<span class="cur">${String(idx + 1).padStart(2,'0')}</span> / 9`;
+    const activeEl = document.querySelector(`.ch-stop[data-i="${idx}"]`);
+    if (activeEl) {
+      // fill exactly up to the centre of the active dot
+      fill.style.width = (activeEl.offsetLeft + activeEl.offsetWidth / 2) + 'px';
+    }
+  }
+
+  allStops.forEach(s => {
+    const i = parseInt(s.getAttribute('data-i'), 10);
+    s.classList.remove('active', 'visited');
+    if (i < idx) s.classList.add('visited');
+    if (i === idx) {
+      s.classList.add('active');
+      s.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  });
+}
+
+function logoMarkup(logo) {
+  if (!logo) return '';
+  if (logo === 'POLYMORPH') return `<div class="ch-logo"><span class="logo-wordmark">P</span></div>`;
+  return `<div class="ch-logo"><img src="${logo}" alt="logo"></div>`;
+}
+
+function renderIntro() {
+  document.getElementById('screen').innerHTML = `
+    <div class="intro-screen">
+      <div class="intro-left">
+        <div class="intro-eyebrow">VP Product, Engineering · Polymorph AI</div>
+        <div class="intro-name">Prashant Gulati</div>
+        <div class="intro-tagline">I build <span class="accent">AI-native products</span>, marrying CS fundamentals with business acumen.</div>
+      </div>
+    </div>`;
+}
+
+function renderChapter(idx) {
+  const ch = chapters[idx];
+  const headlineHTML = ch.title
+    ? ch.title
+    : (ch.h1 ? `${ch.h1}<br>${ch.h2}<span class="accent">${ch.accent}</span>` : '');
+  const headlineClass = ch.title ? 'ch-headline is-title' : 'ch-headline';
+  let cardsHTML = '';
+  if (ch.cardType === 'numbered') {
+    cardsHTML = ch.cards.map(c => `
+      <div class="num-card ${c.hi?'hi':''}">
+        <div class="num">${c.num}</div>
+        <div class="num-name">${c.title}</div>
+        <div class="num-detail">${c.detail}</div>
+      </div>`).join('');
+  } else {
+    cardsHTML = ch.cards.map(c => {
+      const tags = c.tags || (c.tag ? [c.tag] : []);
+      const tagsHTML = tags.map(t => `<span class="card-tag">${t}</span>`).join('');
+      const isImgPath = c.image && /\.(jpg|jpeg|png|svg|gif|webp)$/i.test(c.image);
+      const imgInner = isImgPath
+        ? `<img src="${c.image}" alt="" style="object-fit:${c.fit || 'cover'}">`
+        : (c.image || 'image');
+      const tag = c.link ? 'a' : 'div';
+      const attrs = c.link ? ` href="${c.link}" target="_blank" rel="noopener"` : '';
+      const linkIcon = c.link ? `<span class="card-link-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>` : '';
+      return `
+      <${tag} class="img-card${c.link ? ' is-link' : ''}"${attrs}>
+        ${linkIcon}
+        <div class="img-card-img">${imgInner}</div>
+        <div class="img-card-body">
+          ${tagsHTML ? `<div class="card-tags">${tagsHTML}</div>` : ''}
+          <div class="card-title">${c.title}</div>
+          <div class="card-desc">${c.desc}</div>
+        </div>
+      </${tag}>`;
+    }).join('');
+  }
+  document.getElementById('screen').innerHTML = `
+    <div class="ch-body">
+      <div class="ch-main">
+        <div class="ch-eyebrow">
+          ${logoMarkup(ch.logo)}
+          <div class="eyebrow-text">
+            <span class="ch-sub">${ch.eyebrow}</span>
+            ${flags[idx + 1] ? `<span class="ch-flag">${flags[idx + 1]}</span>` : ''}
+          </div>
+        </div>
+        ${headlineHTML.trim() ? `<div class="${headlineClass}">${headlineHTML}</div>` : ''}
+        ${ch.subtitle ? `<div class="ch-subtitle">${ch.subtitle}</div>` : ''}
+      </div>
+      ${ch.takeaway ? `
+      <div class="takeaway-card">
+        <div class="tw-label"><div class="tw-dot"></div> The Takeaway</div>
+        <div class="tw-text">${ch.takeaway}</div>
+      </div>` : ''}
+    </div>
+    <div class="content-cards">${cardsHTML}</div>
+    <div class="ch-bottom-pad"></div>`;
+}
+
+function goTo(idx) {
+  cur = idx;
+  updateBar(idx);
+  if (idx === -1) renderIntro();
+  else renderChapter(idx);
+}
+
+buildTimeline();
+goTo(-1);
+
+// Arrow-key navigation: ← previous, → next (intro = -1 … last chapter = 8)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' && cur < chapters.length - 1) goTo(cur + 1);
+  else if (e.key === 'ArrowLeft' && cur > -1) goTo(cur - 1);
+});
+
+// Video bubble: click to play/pause
+(function () {
+  const wrap = document.getElementById('rw-photo');
+  const video = document.getElementById('bubble-video');
+  if (!wrap || !video) return;
+  wrap.addEventListener('click', () => {
+    if (video.paused) video.play(); else video.pause();
+  });
+  video.addEventListener('play', () => wrap.classList.add('playing'));
+  video.addEventListener('pause', () => wrap.classList.remove('playing'));
+  video.addEventListener('ended', () => wrap.classList.remove('playing'));
+})();
+</script>
